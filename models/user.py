@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 """User class"""
-from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from models.place import Place
-from models.review import Review
 
 
 class User(BaseModel, Base):
