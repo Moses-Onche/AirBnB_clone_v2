@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 """New class for sqlAlchemy """
 from os import getenv
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy import (create_engine)
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from models.base_model import Base
+from models.base_model import Base, BaseModel
 from models.state import State
 from models.city import City
 from models.user import User
@@ -19,6 +19,7 @@ class DBStorage:
     __session = None
 
     def __init__(self):
+        """Initialize a new instance of the database storage."""
         user = getenv("HBNB_MYSQL_USER")
         passwd = getenv("HBNB_MYSQL_PWD")
         db = getenv("HBNB_MYSQL_DB")
@@ -37,22 +38,19 @@ class DBStorage:
         Return:
             returns a dictionary of __object
         """
-        dic = {}
-        if cls:
-            if type(cls) is str:
-                cls = eval(cls)
-            query = self.__session.query(cls)
-            for elem in query:
-                key = "{}.{}".format(type(elem).__name__, elem.id)
-                dic[key] = elem
+        if cls is None:
+            objs = self.__session.query(State).all()
+            objs.extend(self.__session.query(City).all())
+            objs.extend(self.__session.query(User).all())
+            objs.extend(self.__session.query(Place).all())
+            objs.extend(self.__session.query(Review).all())
+            objs.extend(self.__session.query(Amenity).all())
         else:
-            lista = [State, City, User, Place, Review, Amenity]
-            for clase in lista:
-                query = self.__session.query(clase)
-                for elem in query:
-                    key = "{}.{}".format(type(elem).__name__, elem.id)
-                    dic[key] = elem
-        return (dic)
+            if type(cls) == str:
+                cls = eval(cls)
+            objs = self.__session.query(cls)
+        dict = {"{}.{}".format(type(o).__name__, o.id): o for o in objs}
+        return dict
 
     def new(self, obj):
         """add a new element in the table
@@ -68,7 +66,7 @@ class DBStorage:
         """delete an element in the table
         """
         if obj:
-            self.session.delete(obj)
+            self.__session.delete(obj)
 
     def reload(self):
         """configuration
@@ -79,6 +77,5 @@ class DBStorage:
         self.__session = Session()
 
     def close(self):
-        """ calls remove()
-        """
+        """Close all working sessions."""
         self.__session.close()
