@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Sets up a web server for deployment of web_static.
-
+# A script for web server deployment of web static.
 apt-get update
 apt-get install -y nginx
 
 mkdir -p /data/web_static/releases/test/
 mkdir -p /data/web_static/shared/
-echo "Holberton School" > /data/web_static/releases/test/index.html
+# Dummy html file to test nginx installation
+echo "Hello World" > /data/web_static/releases/test/index.html
 ln -sf /data/web_static/releases/test/ /data/web_static/current
-
+# Change ownership and permissions for user
 chown -R ubuntu /data/
 chgrp -R ubuntu /data/
 
@@ -23,7 +23,7 @@ printf %s "server {
         index index.html index.htm;
     }
     location /redirect_me {
-        return 301 http://cuberule.com/;
+        return 301 https://www.nairaland.com/;
     }
     error_page 404 /404.html;
     location /404 {
